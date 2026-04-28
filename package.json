@@ -1,0 +1,27 @@
+{
+  "name": "prueba",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.15.2",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "firebase-admin": "^13.8.0",
+    "joi": "^18.1.2",
+    "jsmodbus": "^4.0.10",
+    "mssql": "^12.5.0",
+    "net": "^1.0.2",
+    "node-opcua": "^2.169.0",
+    "nodemailer": "^8.0.7",
+    "nodes7": "^0.3.18"
+  }
+}
