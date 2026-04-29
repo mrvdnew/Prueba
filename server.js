@@ -66,7 +66,7 @@ const monitorearPlanta = async (pool) => {
             console.log("¡Correo de alerta enviado!");
 
         } else {
-            console.log("Todo normal. No se encontraron valores altos.");
+            console.log("Normal. No se encontraron valores altos.");
         }
 
     } catch (error) {
@@ -81,12 +81,12 @@ const monitorearPlanta = async (pool) => {
 };
 
 app.listen(PORT, async () => {
-    console.log(`Gateway IoT encendido (Modo: Monitor Automático)`);
+    console.log(`Gateway IoT encendido`);
     console.log(`Conectando a la planta...`);
     
     try {
         const pool = await sql.connect(dbSettings);
-        console.log(`¡Conectado con éxito! Iniciando el ciclo de monitoreo...\n`);
+        console.log(`Conectado.\n`);
         
         monitorearPlanta(pool);
 
