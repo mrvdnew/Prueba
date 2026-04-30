@@ -1,25 +1,21 @@
-import { db, admin } from '../../../../config/db/firebaseConfig.js';
+import { getConnection, sql } from '../../../../config/db/sqlConfig.js';
 
-const obtenerOperadorDeTurno = async (area) => {
-    const hora = new Date().getHours();
-    let turnoActual = (hora >= 8 && hora < 16) ? "Mañana" : (hora >= 16 && hora < 24) ? "Tarde" : "Noche";
-
-    const snapshot = await db.collection('operadores')
-        .where('area_asignada', '==', area)
-        .where('turno', '==', turnoActual)
-        .where('estado_activo', '==', true)
-        .get();
-
-    return snapshot.empty ? null : snapshot.docs[0].data();
+export const obtenerResponsablesTag = async (tagName) => {
 };
 
-const guardarHistorialAlerta = async (alerta, nombreOperador, canal) => {
-    await db.collection('logs_industriales').add({
-        ...alerta,
-        operador_notificado: nombreOperador,
-        canal: canal,
-        timestamp: admin.firestore.Timestamp.now()
-    });
+export const guardarHistorialAlerta = async (tag, valor, nombreOperador, canal) => {
+    try {
+        const pool = await getConnection();
+        await pool.request()
+            .input('tag', sql.VarChar, tag)
+            .input('valor', sql.Float, valor)
+            .input('operador', sql.VarChar, nombreOperador)
+            .input('canal', sql.VarChar, canal)
+            .query(`
+                INSERT INTO dbo.HistorialAlertas (tag, valor_falla, nombre_operador, canal, fecha_envio)
+                VALUES (@tag, @valor, @operador, @canal, GETDATE())
+            `);
+    } catch (error) {
+        console.error("Error guardando en el historial:", error.message);
+    }
 };
-
-export { obtenerOperadorDeTurno, guardarHistorialAlerta };

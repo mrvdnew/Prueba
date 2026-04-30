@@ -12,9 +12,18 @@ const dbSettings = {
     }
 };
 
+let pool = null;
+
 const getConnection = async () => {
-    const pool = await sql.connect(dbSettings);
-    return pool;
+    try {
+        if (pool) return pool; 
+        pool = await sql.connect(dbSettings);
+        return pool;
+    } catch (error) {
+        console.error("Error de conexión SQL:", error.message);
+        pool = null;
+        throw error;
+    }
 };
 
 export { getConnection, sql };
