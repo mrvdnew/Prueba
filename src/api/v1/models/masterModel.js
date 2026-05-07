@@ -15,7 +15,7 @@ const obtenerUltimoDatoHistorian = async () => {
 
         return result.recordset[0]; 
     } catch (error) {
-        console.error("❌ Error en la consulta SQL:", error.message);
+        console.error("Error en la consulta SQL:", error.message);
         return null;
     }
 };

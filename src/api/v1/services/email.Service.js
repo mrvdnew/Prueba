@@ -9,29 +9,30 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const enviarEmailPrueba = async (tag, fecha, valor) => {
+const enviarEmailAlerta = async (usuario, dato) => {
     const mailOptions = {
         from: process.env.EMAIL_USER,
-        to: 'maria.zavala1116@gmail.com',
-        subject: `PRUEBA DE CONEXIÓN: Tag ${tag}`,
+        to: usuario.email, 
+        subject: `ALERTA CRÍTICA: ${dato.Tag}`,
         html: `
-            <h2>Notificación de Datos en Tiempo Real</h2>
-            <p>Se ha verificado la conexión con la base de datos <b>Historian</b>.</p>
-            <table border="1" cellpadding="10">
-                <tr><td><b>Tag:</b></td><td>${tag}</td></tr>
-                <tr><td><b>Fecha:</b></td><td>${fecha}</td></tr>
-                <tr><td><b>Valor:</b></td><td>${valor}</td></tr>
-            </table>
-            <p><i>Este es un mensaje automático del sistema en desarrollo.</i></p>
+            <div style="font-family: sans-serif; border: 2px solid #ff9900; padding: 20px; border-radius: 8px;">
+                <h2 style="color: #ff9900;">¡Dato Anómalo Detectado!</h2>
+                <p>Hola <b>${usuario.nombre}</b>, se ha capturado un valor sobre el umbral en tu área asignada:</p>
+                <ul>
+                    <li><b>TAG:</b> ${dato.Tag}</li>
+                    <li><b>FECHA:</b> ${dato.Fecha}</li>
+                    <li><b>VALOR:</b> <span style="color: red; font-size: 1.2em; font-weight: bold;">${dato.Valor}</span></li>
+                </ul>
+            </div>
         `
     };
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log("Email de prueba enviado exitosamente.");
+        console.log(`Email enviado a ${usuario.nombre} (${usuario.email}).`);
     } catch (error) {
-        console.error("Error enviando el email:", error.message);
+        console.error(`Error enviando email a ${usuario.email}:`, error.message);
     }
 };
 
-export { enviarEmailPrueba };
+export { enviarEmailAlerta };
