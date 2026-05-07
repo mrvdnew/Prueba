@@ -1,93 +1,145 @@
 import 'dotenv/config'; 
 import express from 'express';
-import sql from 'mssql';
-import nodemailer from 'nodemailer'; 
+import { getConnection } from './config/db/sqlConfig.js';
+import { obtenerResponsablesTag } from './src/api/v1/models/alertModel.js';
+import { enviarEmailAlerta } from './src/api/v1/services/email.Service.js';
+<<<<<<< HEAD
+// Importamos WhatsApp, aunque nos enfocaremos en Email para esta prueba
+=======
+>>>>>>> f04c3f942204ba5b4399a202d6d8c9ff956a462b
+import { enviarWhatsApp } from './src/api/v1/services/whatsappService.js';
 
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-const dbSettings = {
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    server: process.env.DB_SERVER,
-    database: process.env.DB_DATABASE, 
-    options: {
-        encrypt: false, 
-        trustServerCertificate: true 
-    }
-};
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS 
-    }
-});
-
+<<<<<<< HEAD
+// Configuración del Polling y Alertas
 const UMBRAL_MINIMO = 5.0; 
-const MIN_SEGUNDOS = 10; 
-const MAX_SEGUNDOS = 35; 
+const INTERVALO_SEGUNDOS = 10; // <-- POLLING FIJO: Revisará la BD cada 10 segundos exactos
+
+// Nuestro "marcapáginas" temporal
+=======
+const UMBRAL_MINIMO = 5.0;
+const MIN_SEGUNDOS = 10;
+const MAX_SEGUNDOS = 35;
+
+>>>>>>> f04c3f942204ba5b4399a202d6d8c9ff956a462b
+let ultimaFechaNotificada = null;
 
 const monitorearPlanta = async (pool) => {
     try {
-        console.log(`\nBuscando anomalía (Valor > ${UMBRAL_MINIMO}) en la tabla ${process.env.DB_TABLE}...`);
+<<<<<<< HEAD
+        console.log(`\n[${new Date().toLocaleTimeString()}] Buscando anomalías (Valor > ${UMBRAL_MINIMO}) en ${process.env.DB_TABLE}...`);
         
-        const result = await pool.request().query(`
+        // 1. Armamos la consulta para traer SOLO el último registro más reciente
+=======
+        console.log(`\nBuscando anomalías NUEVAS (Valor > ${UMBRAL_MINIMO}) en ${process.env.DB_TABLE}...`);
+        
+>>>>>>> f04c3f942204ba5b4399a202d6d8c9ff956a462b
+        let query = `
             SELECT TOP 1 Tag, Fecha, Valor 
             FROM dbo.${process.env.DB_TABLE}
             WHERE Valor > ${UMBRAL_MINIMO}
-            ORDER BY NEWID()
-        `);
+        `;
 
+<<<<<<< HEAD
+        // 2. Si ya leímos un dato antes, le decimos a SQL que solo traiga datos MÁS NUEVOS que ese
+=======
+>>>>>>> f04c3f942204ba5b4399a202d6d8c9ff956a462b
+        if (ultimaFechaNotificada) {
+            query += ` AND Fecha > '${ultimaFechaNotificada.toISOString()}'`;
+        }
+
+<<<<<<< HEAD
+        // Siempre ordenamos del más nuevo al más viejo
+=======
+>>>>>>> f04c3f942204ba5b4399a202d6d8c9ff956a462b
+        query += ` ORDER BY Fecha DESC`;
+
+        const result = await pool.request().query(query);
         const dato = result.recordset[0];
 
         // 3. Evaluamos si SQL encontró un dato nuevo
         if (dato) {
-            console.log(`Dato capturado: ${dato.Tag} | Valor: ${dato.Valor}`);
+<<<<<<< HEAD
+            console.log(`⚠️ ¡NUEVA FALLA DETECTADA! Tag: ${dato.Tag} | Valor: ${dato.Valor}`);
             
-            const mailOptions = {
-                from: process.env.EMAIL_USER,
-                to: process.env.EMAIL_USER, 
-                subject: `ALARMA SIMULADA: ${dato.Tag}`,
-                html: `
-                    <div style="font-family: sans-serif; border: 2px solid #ff9900; padding: 20px; border-radius: 8px;">
-                        <h2 style="color: #ff9900;">¡Dato Anómalo Detectado!</h2>
-                        <p>El sistema automático ha capturado un valor sobre el umbral (${UMBRAL_MINIMO}):</p>
-                        <ul>
-                            <li><b>TAG:</b> ${dato.Tag}</li>
-                            <li><b>FECHA:</b> ${dato.Fecha}</li>
-                            <li><b>VALOR:</b> <span style="color: red; font-size: 1.2em; font-weight: bold;">${dato.Valor}</span></li>
-                        </ul>
-                    </div>
-                `
-            };
+            // Actualizamos nuestro marcapáginas para no repetir este correo en el próximo ciclo
+=======
+            console.log(`¡NUEVA FALLA DETECTADA! Tag: ${dato.Tag} | Valor: ${dato.Valor}`);
+            
+>>>>>>> f04c3f942204ba5b4399a202d6d8c9ff956a462b
+            ultimaFechaNotificada = dato.Fecha;
 
-            await transporter.sendMail(mailOptions);
-            console.log("¡Correo de alerta enviado!");
+            const responsables = await obtenerResponsablesTag(dato.Tag);
+
+            if (responsables.length > 0) {
+                console.log(`Notificando a ${responsables.length} responsables del área...`);
+
+                for (const user of responsables) {
+<<<<<<< HEAD
+                    // PRUEBA EXCLUSIVA DE EMAIL:
+                    if (user.notificar_email) {
+                        await enviarEmailAlerta(user, dato);
+                    }
+                    
+                    // Si quieres probar WhatsApp después, descomenta esta línea:
+                    // if (user.notificar_whatsapp && user.telefono) {
+                    //     await enviarWhatsApp(user.telefono, user.nombre, dato.Tag, `Valor: ${dato.Valor}`);
+                    // }
+=======
+                    if (user.notificar_email) {
+                        await enviarEmailAlerta(user, dato);
+                    }
+                    if (user.notificar_whatsapp && user.telefono) {
+                        await enviarWhatsApp(user.telefono, user.nombre, dato.Tag, `Valor: ${dato.Valor}`);
+                    }
+>>>>>>> f04c3f942204ba5b4399a202d6d8c9ff956a462b
+                }
+            } else {
+                console.log(`Falla en ${dato.Tag}, pero no hay responsables asignados en la BD.`);
+            }
 
         } else {
-            console.log("Todo normal. No se encontraron valores altos.");
+<<<<<<< HEAD
+            console.log("Monitor activo. No hay registros nuevos que superen el umbral.");
+=======
+            console.log("Monitor activo. No hay alarmas nuevas desde la última revisión.");
+>>>>>>> f04c3f942204ba5b4399a202d6d8c9ff956a462b
         }
 
     } catch (error) {
         console.error("❌ ERROR TÉCNICO AL CONSULTAR BD:", error.message);
     } finally {
+<<<<<<< HEAD
+        // 4. EL MOTOR DEL POLLING FIJO
+        setTimeout(() => monitorearPlanta(pool), INTERVALO_SEGUNDOS * 1000);
+=======
         const tiempoEspera = Math.floor(Math.random() * (MAX_SEGUNDOS - MIN_SEGUNDOS + 1) + MIN_SEGUNDOS);
-        
         console.log(`Esperando ${tiempoEspera} segundos para la próxima revisión...`);
-        
         setTimeout(() => monitorearPlanta(pool), tiempoEspera * 1000);
+>>>>>>> f04c3f942204ba5b4399a202d6d8c9ff956a462b
     }
 };
 
 app.listen(PORT, async () => {
-    console.log(`Gateway IoT encendido (Modo: Monitor Automático)`);
+<<<<<<< HEAD
+    console.log(`=========================================`);
+    console.log(`🏭 Gateway IoT encendido (Modo: Producción)`);
+    console.log(`⏱️ Polling configurado a: ${INTERVALO_SEGUNDOS} segundos`);
+    console.log(`=========================================\n`);
+    
+    try {
+        const pool = await getConnection();
+        console.log(`✅ ¡Conectado con éxito a SQL Server! Iniciando monitoreo...\n`);
+=======
+    console.log(`Gateway IoT encendido (Modo: Producción 24/7)`);
     console.log(`Conectando a la planta...`);
     
     try {
-        const pool = await sql.connect(dbSettings);
+        const pool = await getConnection();
         console.log(`¡Conectado con éxito! Iniciando el ciclo de monitoreo...\n`);
+>>>>>>> f04c3f942204ba5b4399a202d6d8c9ff956a462b
         
         // Iniciamos el ciclo infinito
         monitorearPlanta(pool);
