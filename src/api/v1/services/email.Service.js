@@ -16,8 +16,8 @@ const enviarEmailAlerta = async (usuario, dato) => {
         subject: `ALERTA CRÍTICA: ${dato.Tag}`,
         html: `
             <div style="font-family: sans-serif; border: 2px solid #ff9900; padding: 20px; border-radius: 8px;">
-                <h2 style="color: #ff9900;">¡Dato Anómalo Detectado!</h2>
-                <p>Hola <b>${usuario.nombre}</b>, se ha capturado un valor sobre el umbral en tu área asignada:</p>
+                <h2 style="color: #ff9900;">Nuevo Registro</h2>
+                <p>Hola <b>${usuario.nombre}</b>, se ha capturado un valor nuevo:</p>
                 <ul>
                     <li><b>TAG:</b> ${dato.Tag}</li>
                     <li><b>FECHA:</b> ${dato.Fecha}</li>

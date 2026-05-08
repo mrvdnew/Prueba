@@ -1,5 +1,4 @@
 import { getConnection, sql } from '../../../../config/db/sqlConfig.js';
-// Importamos dotenv para asegurarnos de poder leer las variables aquí también
 import 'dotenv/config'; 
 
 export const obtenerResponsablesTag = async (tagName) => {
