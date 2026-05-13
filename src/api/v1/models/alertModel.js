@@ -4,12 +4,12 @@ import 'dotenv/config';
 export const obtenerResponsablesTag = async (tagName) => {
     const correoDestino = process.env.EMAIL_TEST_DESTINO || process.env.EMAIL_USER;
 
-    console.log(`[Modelo] Modo Test activado. Simulando responsable para el tag: ${tagName}`);
-    console.log(`[Modelo] El correo se enviará a la dirección configurada en .env: ${correoDestino}`);
+    console.log(`Responsable ${tagName}`);
+    console.log(`El correo se enviará a la dirección configurada en .env: ${correoDestino}`);
 
     return [
         {
-            nombre: "Ingeniero de Pruebas",
+            nombre: "María Ester",
             email: correoDestino, 
             notificar_email: true,
             notificar_whatsapp: false
